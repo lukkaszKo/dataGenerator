@@ -13,5 +13,12 @@ function getRandomDate(yearFrom, yearTo) {
   const timeFrom = new Date(`${yearFrom}-01-01T00:00:00.000`).getTime();
   const timeTo = new Date(`${yearTo + 1}-01-01T00:00:00.000`).getTime();
   const selectedDate = new Date(timeFrom + Math.random() * (timeTo - timeFrom));
-  return selectedDate;
+  return selectedDate.toISOString().split(".")[0];
 }
+
+function getRandomDateOfBirth(yearFrom, yearTo) {
+  const date = getRandomDate(yearFrom, yearTo);
+  return date.split("T")[0];
+}
+
+console.log(getRandomDateOfBirth(2000, 2001));
