@@ -1,0 +1,23 @@
+{
+  "name": "datagenerator",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/lukkaszKo/dataGenerator#readme",
+  "bugs": {
+    "url": "https://github.com/lukkaszKo/dataGenerator/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lukkaszKo/dataGenerator.git"
+  },
+  "license": "ISC",
+  "author": "Łukasz Kowalik",
+  "type": "module",
+  "main": "date.generator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0"
+  }
+}
