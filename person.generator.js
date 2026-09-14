@@ -1,9 +1,11 @@
 import { fakerPL as faker } from "@faker-js/faker";
 
-export function getName() {
-  return faker.person.firstName();
+export function getmaleName() {
+  return faker.person.firstName("male");
 }
 
-export function getSurname() {
-  return faker.person.lastName();
+export function getmaleSurname() {
+  return faker.person.lastName("male");
 }
+
+console.log(getmaleName(), getmaleSurname());
