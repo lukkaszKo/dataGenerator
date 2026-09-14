@@ -20,5 +20,3 @@ export function getRandomDateOfBirth(yearFrom, yearTo) {
   const date = getRandomDate(yearFrom, yearTo);
   return date.split("T")[0];
 }
-
-console.log(getRandomDateOfBirth(2000, 2001));
