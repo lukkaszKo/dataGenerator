@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generator mocków REST</title>
+<script>try{var t=localStorage.getItem('mockgen-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+
+
+<div class="app">
+<aside class="sidebar" aria-labelledby="h-views">
+  <div class="panel explorer">
+    <div class="sec-head"><h2 id="h-views">Moje widoki</h2><span class="spacer"></span><button type="button" class="collapse-btn" aria-expanded="true" aria-label="Zwiń lub rozwiń sekcję"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div>
+    <div class="tools">
+      <button type="button" class="btn tool" id="tool-save" title="Zapisz bieżący widok w wybranym folderze">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h8l2 2v9H3z"/><path d="M5.5 2.5v3.5h5V2.5M5.5 13.5v-4h5v4"/></svg>Zapisz widok
+      </button>
+      <button type="button" class="btn tool" id="tool-folder" title="Dodaj nowy folder">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M1.5 4.5v8h13v-7H7.5l-1.5-2h-4.5z"/><path d="M8 7.5v3M6.5 9h3"/></svg>Dodaj folder
+      </button>
+      <button type="button" class="btn ghost tool" id="tool-empty" title="Wyczyść zmienne i szablon i zacznij od zera">Pusty widok</button>
+    </div>
+    <div class="view-status" id="view-status" aria-live="polite"></div>
+    <div id="tree" class="tree" role="tree" aria-live="polite"></div>
+  </div>
+</aside>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Generator mocków REST</h1>
+      <p>Zdefiniuj zmienne, wstaw je do szablonu JSON i wygeneruj losowe dane testowe.</p>
+    </div>
+    <button type="button" class="btn ghost" id="theme-toggle" title="Zmień motyw: auto / jasny / ciemny">Motyw: auto</button>
+  </header>
+
+
+
+  <div class="top-main">
+
+  <section class="panel" aria-labelledby="h-new">
+    <div class="sec-head"><span class="step">1</span><h2 id="h-new">Nowa zmienna</h2></div>
+    <div class="type-groups">
+      <div class="type-group">
+        <span class="group-lbl" id="g-person">Osoba</span>
+        <div class="types" role="group" aria-labelledby="g-person">
+          <button type="button" class="type-chip t-person" data-type="person" aria-pressed="false"><span class="dot"></span>IMIĘ</button>
+          <button type="button" class="type-chip t-person" data-type="surname" aria-pressed="false"><span class="dot"></span>NAZWISKO</button>
+          <button type="button" class="type-chip t-person" data-type="pesel" aria-pressed="false"><span class="dot"></span>PESEL</button>
+          <button type="button" class="type-chip t-person" data-type="photo" aria-pressed="false"><span class="dot"></span>ZDJĘCIE</button>
+        </div>
+      </div>
+      <div class="type-group">
+        <span class="group-lbl" id="g-uni">Uniwersalne</span>
+        <div class="types" role="group" aria-labelledby="g-uni">
+          <button type="button" class="type-chip t-date" data-type="date" aria-pressed="false"><span class="dot"></span>DATA</button>
+          <button type="button" class="type-chip t-date" data-type="number" aria-pressed="false"><span class="dot"></span>NUMER</button>
+          <button type="button" class="type-chip t-date" data-type="dict" aria-pressed="false"><span class="dot"></span>SŁOWNIK</button>
+          <button type="button" class="type-chip t-date" data-type="bool" aria-pressed="false"><span class="dot"></span>BOOLEAN</button>
+        </div>
+      </div>
+      <div class="type-group">
+        <span class="group-lbl" id="g-veh">Pojazd</span>
+        <div class="types" role="group" aria-labelledby="g-veh">
+          <button type="button" class="type-chip t-vehicle" data-type="vin" aria-pressed="false"><span class="dot"></span>VIN</button>
+        </div>
+      </div>
+      <div class="type-group">
+        <span class="group-lbl" id="g-ent">Podmiot</span>
+        <div class="types" role="group" aria-labelledby="g-ent">
+          <button type="button" class="type-chip t-entity" data-type="nip" aria-pressed="false"><span class="dot"></span>NIP</button>
+          <button type="button" class="type-chip t-entity" data-type="regon" aria-pressed="false"><span class="dot"></span>REGON</button>
+        </div>
+      </div>
+    </div>
+    <p class="hint" id="type-hint">Wybierz typ zmiennej, aby ją skonfigurować.</p>
+
+    <form id="f-person" class="cfg person" hidden novalidate>
+      <h3 id="p-title">Imię</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="p-name">Podaj nazwę zmiennej</label>
+          <input id="p-name" autocomplete="off" spellcheck="false" placeholder="np. imie_klienta">
+          <div class="err" id="p-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="p-gender">Płeć</label>
+          <select id="p-gender"><option value="K">Kobieta</option><option value="M">Mężczyzna</option></select>
+        </div>
+        <div class="field">
+          <label for="p-nat">Narodowość</label>
+          <select id="p-nat"><option value="PL">Polska</option><option value="UA">Ukraina</option><option value="AR">Arabskie</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="p-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-pesel" class="cfg person" hidden novalidate>
+      <h3 id="ps-title">PESEL</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="ps-name">Podaj nazwę zmiennej</label>
+          <input id="ps-name" autocomplete="off" spellcheck="false" placeholder="np. pesel_klienta">
+          <div class="err" id="ps-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="ps-gender">Płeć</label>
+          <select id="ps-gender"><option value="K">Kobieta</option><option value="M">Mężczyzna</option></select>
+        </div>
+        <div class="field">
+          <label for="ps-from">Data urodzenia od</label>
+          <input id="ps-from" type="date" min="1800-01-01" max="2299-12-31">
+        </div>
+        <div class="field">
+          <label for="ps-to">Data urodzenia do</label>
+          <input id="ps-to" type="date" min="1800-01-01" max="2299-12-31">
+          <div class="err" id="ps-range-err"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="ps-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-vin" class="cfg vin" hidden novalidate>
+      <h3 id="vin-title">VIN</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="vin-name">Podaj nazwę zmiennej</label>
+          <input id="vin-name" autocomplete="off" spellcheck="false" placeholder="np. vin_pojazdu">
+          <div class="err" id="vin-name-err"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="vin-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-nip" class="cfg nip" hidden novalidate>
+      <h3 id="nip-title">NIP</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="nip-name">Podaj nazwę zmiennej</label>
+          <input id="nip-name" autocomplete="off" spellcheck="false" placeholder="np. nip_firmy">
+          <div class="err" id="nip-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="nip-format">Format</label>
+          <select id="nip-format"><option value="plain">Bez myślników (1234563218)</option><option value="dashes">Z myślnikami (123-456-32-18)</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="nip-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-regon" class="cfg regon" hidden novalidate>
+      <h3 id="rg-title">REGON</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="rg-name">Podaj nazwę zmiennej</label>
+          <input id="rg-name" autocomplete="off" spellcheck="false" placeholder="np. regon_firmy">
+          <div class="err" id="rg-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="rg-len">Długość</label>
+          <select id="rg-len"><option value="9">9 cyfr</option><option value="14">14 cyfr</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="rg-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-photo" class="cfg photo" hidden novalidate>
+      <h3 id="ph-title">Zdjęcie</h3>
+      <p class="hint">Losowe zdjęcie twarzy (JPEG 1024×1024) pobierane z thispersondoesnotexist.com. Jedno generowanie obejmuje maks. 100 zdjęć, a każdy rekord dostaje inne.</p>
+      <div class="fields">
+        <div class="field">
+          <label for="ph-name">Podaj nazwę zmiennej</label>
+          <input id="ph-name" autocomplete="off" spellcheck="false" placeholder="np. zdjecie_klienta">
+          <div class="err" id="ph-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="ph-format">Zwracany format</label>
+          <select id="ph-format"><option value="base64">Base64 (sam ciąg znaków)</option><option value="datauri">Data URI (data:image/jpeg;base64,…)</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="ph-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-date" class="cfg date" hidden novalidate>
+      <h3 id="d-title">Data</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="d-name">Podaj nazwę zmiennej</label>
+          <input id="d-name" autocomplete="off" spellcheck="false" placeholder="np. data_zamowienia">
+          <div class="err" id="d-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="d-from">Od</label>
+          <input id="d-from" type="datetime-local" step="1">
+        </div>
+        <div class="field">
+          <label for="d-to">Do</label>
+          <input id="d-to" type="datetime-local" step="1">
+          <div class="err" id="d-range-err"></div>
+        </div>
+        <div class="field">
+          <label for="d-format">Zwracany format</label>
+          <select id="d-format"></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="d-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-dict" class="cfg dict" hidden novalidate>
+      <h3 id="x-title">Słownik</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="x-name">Podaj nazwę zmiennej</label>
+          <input id="x-name" autocomplete="off" spellcheck="false" placeholder="np. status">
+          <div class="err" id="x-name-err"></div>
+        </div>
+        <div class="field wide">
+          <label for="x-values">Lista wartości (JSON)</label>
+          <textarea id="x-values" spellcheck="false" placeholder='["NEW", "PAID", "SHIPPED"]  albo  [100, 200, 500]'></textarea>
+          <div class="err" id="x-values-err"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="x-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-bool" class="cfg bool" hidden novalidate>
+      <h3 id="b-title">Boolean</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="b-name">Podaj nazwę zmiennej</label>
+          <input id="b-name" autocomplete="off" spellcheck="false" placeholder="np. aktywny">
+          <div class="err" id="b-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="b-prob">Szansa na true (%)</label>
+          <input id="b-prob" type="number" min="0" max="100" step="1" inputmode="numeric">
+          <div class="err" id="b-prob-err"></div>
+        </div>
+        <div class="field">
+          <label for="b-as">Zwracany typ</label>
+          <select id="b-as"><option value="bool">Boolean (true / false)</option><option value="str">Tekst ("true" / "false")</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="b-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+
+    <form id="f-number" class="cfg number" hidden novalidate>
+      <h3 id="n-title">Numer</h3>
+      <div class="fields">
+        <div class="field">
+          <label for="n-name">Podaj nazwę zmiennej</label>
+          <input id="n-name" autocomplete="off" spellcheck="false" placeholder="np. kwota">
+          <div class="err" id="n-name-err"></div>
+        </div>
+        <div class="field">
+          <label for="n-min">Od</label>
+          <input id="n-min" type="number" step="any" inputmode="decimal">
+        </div>
+        <div class="field">
+          <label for="n-max">Do</label>
+          <input id="n-max" type="number" step="any" inputmode="decimal">
+          <div class="err" id="n-range-err"></div>
+        </div>
+        <div class="field">
+          <label for="n-dec">Miejsca po przecinku</label>
+          <select id="n-dec"><option value="0">0 (liczba całkowita)</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+        </div>
+        <div class="field">
+          <label for="n-as">Zwracany typ</label>
+          <select id="n-as"><option value="num">Liczba (bez cudzysłowów)</option><option value="str">Tekst (w cudzysłowach)</option></select>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn primary" id="n-submit">Dodaj zmienną</button>
+        <button type="button" class="btn ghost" data-cancel>Anuluj</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel" aria-labelledby="h-vars">
+    <div class="sec-head"><span class="step">2</span><h2 id="h-vars">Zmienne w tym widoku</h2></div>
+    <p class="hint">Kliknij zmienną, aby wstawić ją w miejscu kursora w szablonie. Każda zmienna to jedna wartość, którą wpisujesz w wybraną właściwość obiektu.</p>
+    <div id="vars" class="vars"></div>
+  </section>
+
+  </div>
+
+  <div class="editor-grid">
+    <section class="panel" aria-labelledby="h-tpl">
+      <div class="sec-head">
+        <span class="step">3</span><h2 id="h-tpl">Szablon JSON</h2><span class="spacer"></span>
+        <button type="button" class="btn" id="btn-sample" title="Wstawia stały, przykładowy JSON bez zmiennych">Wstaw przykład</button>
+        <button type="button" class="btn" id="btn-format">Formatuj</button>
+        <button type="button" class="btn ghost" id="btn-clear">Wyczyść</button>
+      </div>
+      <p class="hint onboarding" id="tpl-hint" hidden><strong>Jak zacząć:</strong> 1) wybierz typ w „Nowa zmienna” i dodaj zmienną, 2) kliknij ją na liście, a wstawi się w szablonie jako <code>{{nazwa}}</code>, 3) kliknij „Generuj”.</p>
+      <div class="code-wrap">
+        <pre id="tpl-gutter" class="gutter" aria-hidden="true">1</pre>
+        <textarea id="tpl" spellcheck="false" aria-label="Szablon JSON" placeholder='Wklej JSON, np. {"imie": "{{klient.imie}}"}'></textarea>
+      </div>
+      <div class="status" id="tpl-status" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-out">
+      <div class="sec-head">
+        <span class="step">4</span><h2 id="h-out">Wynik</h2><span class="spacer"></span>
+        <label class="count" for="count">Rekordów <input id="count" type="number" min="1" max="500" value="1"></label>
+        <button type="button" class="btn primary" id="btn-gen" title="Generuj (Ctrl+Enter)">Generuj</button>
+        <button type="button" class="btn" id="btn-copy">Kopiuj</button>
+        <button type="button" class="btn" id="btn-download" title="Pobierz wynik jako plik .json">Pobierz</button>
+      </div>
+      <div class="out-wrap"><div class="out-scroll"><pre id="out-gutter" class="gutter" aria-hidden="true" hidden></pre><pre id="out" class="placeholder">Kliknij „Generuj”, aby wypełnić szablon losowymi danymi.</pre></div></div>
+      <div class="meta" id="out-meta"></div>
+    </section>
+  </div>
+</div>
+
+<aside class="sidebar history" aria-labelledby="h-hist">
+    <div class="panel explorer">
+      <div class="sec-head"><h2 id="h-hist">Historia</h2><span class="spacer"></span><button type="button" class="btn ghost tool" id="hist-clear" hidden>Wyczyść</button><button type="button" class="collapse-btn" aria-expanded="true" aria-label="Zwiń lub rozwiń sekcję"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg></button></div>
+      <p class="hint">Każde „Generuj” zapisuje wynik w folderze <code>history/</code>. Zostaje 200 ostatnich, a przypięte (📌) nigdy nie są kasowane.</p>
+      <div id="hist" class="tree" role="list" aria-live="polite"></div>
+    </div>
+  </aside>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>
