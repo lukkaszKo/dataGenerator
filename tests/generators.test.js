@@ -34,11 +34,11 @@ test('quoteBare: placeholder bez cudzysłowu staje się stringiem', () => {
   assert.equal(quoteBare('"{{x}}"'), '"{{x}}"');
 });
 
-test('fill: ta sama zmienna w rekordzie daje tę samą wartość, typ zachowany', () => {
-  const vars = [{id:'1', type:'number', name:'n', min:1, max:1000000, dec:0, as:'num'}];
-  const r = fill({a:'{{n}}', b:'x {{n}}'}, {}, vars);
+test('fill: każde użycie zmiennej losuje nową wartość, typ zachowany', () => {
+  const vars = [{id:'1', type:'number', name:'n', min:1, max:1000000, dec:0, as:'num'}, {id:'2', type:'vin', name:'vin'}];
+  const r = fill({a:'{{n}}', b:'x {{n}}', v:['{{vin}}','{{vin}}','{{vin}}']}, {}, vars);
   assert.equal(typeof r.a, 'number');
-  assert.equal(r.b, 'x ' + r.a);
+  assert.equal(new Set(r.v).size, 3);
 });
 
 test('fill: nieznana zmienna rzuca GenError', () => {

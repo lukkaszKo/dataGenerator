@@ -1,3 +1,7 @@
 node_modules/
 dist/
 .DS_Store
+history/*
+!history/.gitkeep
+saved/*
+!saved/.gitkeep

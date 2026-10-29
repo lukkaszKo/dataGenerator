@@ -52,9 +52,11 @@ export function showOutput(value, meta){
 let generating = false;
 
 // zmienne ZDJĘCIE faktycznie użyte w szablonie (każda dostaje osobne zdjęcie w każdym rekordzie)
+// zmienne ZDJĘCIE z liczbą wystąpień w szablonie (każde wystąpienie dostaje osobne zdjęcie)
 const usedPhotoVars = () => {
-  const names = new Set(usedTokens(tpl.value).map(t=>t.name));
-  return state.vars.filter(v=>v.type==='photo' && names.has(v.name));
+  const counts = {};
+  usedTokens(tpl.value).forEach(t=>{ counts[t.name] = (counts[t.name]||0) + 1; });
+  return state.vars.filter(v=>v.type==='photo' && counts[v.name]).map(v=>({v, count:counts[v.name]}));
 };
 
 function setBusy(busy, label){
@@ -81,11 +83,12 @@ export async function generate({record = true} = {}){
   // zdjęcia pobieramy z góry (asynchronicznie), reszta wartości jest losowana synchronicznie
   const photoVars = usedPhotoVars();
   let photos = [];
+  const perRecord = photoVars.reduce((s,p)=>s+p.count, 0);
   if(photoVars.length){
     if(!record){ clearOutput(); return; }
-    const need = n * photoVars.length;
+    const need = n * perRecord;
     if(need > PHOTO_LIMIT){
-      showOutError(`Zdjęcia są pobierane z internetu, więc jedno generowanie obejmuje maks. ${PHOTO_LIMIT} zdjęć, a potrzeba ${need} (${n} rekordów × ${photoVars.length} zmiennych ZDJĘCIE). Zmniejsz liczbę rekordów.`);
+      showOutError(`Zdjęcia są pobierane z internetu, więc jedno generowanie obejmuje maks. ${PHOTO_LIMIT} zdjęć, a potrzeba ${need} (${n} rekordów × ${perRecord} użyć zmiennych ZDJĘCIE). Zmniejsz liczbę rekordów.`);
       return;
     }
     generating = true;
@@ -100,7 +103,10 @@ export async function generate({record = true} = {}){
     const records = [];
     for(let i=0;i<n;i++){
       const ctx = {};
-      photoVars.forEach((v, j)=>{ ctx[v.name] = photoValue(v, photos[i * photoVars.length + j]); });
+      let k = i * perRecord;
+      photoVars.forEach(({v, count})=>{
+        ctx[v.name] = Array.from({length:count}, ()=>photoValue(v, photos[k++]));
+      });
       records.push(fill(template, ctx, state.vars));
     }
     value = n===1 ? records[0] : records;

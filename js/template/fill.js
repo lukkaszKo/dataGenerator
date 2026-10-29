@@ -7,11 +7,15 @@ function resolve(name, field, ctx, vars){
   const v = vars.find(x=>x.name===name);
   if(!v) throw new GenError(`Nieznana zmienna {{${name}}}. Dodaj ją albo popraw nazwę.`);
   if(field) throw new GenError(`Zmienna {{${name}}} zwraca jedną wartość i nie ma pól. Użyj samego {{${name}}}.`);
-  if(!(name in ctx)) ctx[name] = generate(v);
-  return ctx[name];
+  if(v.type==='photo'){
+    const queue = ctx[name]; // zdjęcia są pobrane z góry: po jednym na każde wystąpienie
+    if(!queue || !queue.length) throw new GenError(`Brak pobranego zdjęcia dla {{${name}}}.`);
+    return queue.shift();
+  }
+  return generate(v);
 }
 
-// ctx pamięta wartości w obrębie jednego rekordu: ta sama zmienna = ta sama wartość
+// każde wystąpienie placeholdera losuje nową wartość; ctx trzyma tylko kolejki zdjęć danego rekordu
 export function fill(node, ctx, vars){
   if(typeof node==='string'){
     const whole = /^\{\{\s*([A-Za-z_]\w*)(?:\.([A-Za-z_]\w*))?\s*\}\}$/.exec(node);
